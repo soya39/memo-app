@@ -1,11 +1,27 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
+import axios from 'axios'
 import Button from "@/components/Button.vue";
 import Textarea from "@/components/Textarea.vue";
 
 const content = ref("");
 
 const isButtonDisabled = computed(() => content.value.trim().length === 0);
+
+// 保存を実行する関数
+const saveMemo = async () => {
+    // 入力欄が空なら、Enterキーを押されてもここで処理を止める
+    if (isButtonDisabled.value) return;
+
+    // 【送信】awaitを使って、Laravelからの返事（保存完了）が来るまで待機する.保存ならpost、取得ならget
+    // axios.post(住所, { ラベル名: 送りたい中身 })
+    await axios.post('/api/memos', {
+        content: content.value //content.valueを、contentという名前をつけてControllerに送る
+    });
+
+    // 【リセット】DB保存が終わったので、次の入力のために画面の文字を消す
+    content.value = "";
+};
 </script>
 
 <template>
@@ -18,7 +34,7 @@ const isButtonDisabled = computed(() => content.value.trim().length === 0);
 
         <Textarea v-model:content="content"/>
 
-        <Button :disabled="isButtonDisabled"/>
+        <Button :disabled="isButtonDisabled" @click="saveMemo"/>
     </div>
 </template>
 
