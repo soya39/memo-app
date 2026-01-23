@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import Header from '@/components/Header.vue';
 import MemoForm from '@/components/MemoForm.vue';
+import MemoList from "@/components/MemoList.vue";
 </script>
 
 <template>
@@ -9,6 +10,7 @@ import MemoForm from '@/components/MemoForm.vue';
 
         <main class="container mx-auto py-8">
             <MemoForm />
+            <MemoList />
         </main>
 
     </div>
