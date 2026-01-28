@@ -1,6 +1,9 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
+import { useMemoStore } from "@/stores/memo";
 import DocumentSvg from "@/components/svgs/DocumentSvg.vue";
+
+const store = useMemoStore();
 
 // 現在「全文表示」しているメモのIDを保持する（初期値はnull）
 const expandedId = ref<number | null>(null);
@@ -14,11 +17,10 @@ const toggleExpand = (id: number) => {
     }
 };
 
-const memos = [
-    { id: 1, title: "テストメモ1：ここにはとても長い文章が入ります。クリックすると省略が解除されて、すべての内容が読めるようになります。デザインの崩れを気にせず詳細を確認できますね。", date: "2026/01/21" },
-    { id: 2, title: "テストメモ2：短いメモならそのまま表示されます。", date: "2026/01/21" },
-    { id: 3, title: "テストメモ3：Vueの条件付きクラス（v-bind:class）を使うのがポイントです。", date: "2026/01/21" },
-];
+onMounted(() => {
+    store.fetchMemos();
+});
+
 </script>
 
 <template>
@@ -26,18 +28,17 @@ const memos = [
         <div class="flex items-center gap-2 mb-6">
             <DocumentSvg class="w-6 h-6 text-gray-600" />
             <h2 class="text-xl font-bold text-gray-800">保存されたメモ</h2>
-            <!--max-w-2xl→これ以上は横に広がらないでね」という壁を作る設定,text-xl→textextralarge-->
             <span class="ml-auto bg-orange-100 text-orange-600 text-xs font-bold px-2 py-0.5 rounded-full">
-                {{ memos.length }}件
+                {{ store.memos.length }}件
             </span>
         </div>
 
         <div class="space-y-4">
             <div
-                v-for="memo in memos" :key="memo.id"
+                v-for="memo in store.memos" :key="memo.id"
                 @click="toggleExpand(memo.id)"
                 class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100
-                hover:shadow-md group relative"
+                hover:shadow-md group relative cursor-pointer"
             >
                 <button
                     @click.stop="console.log('削除:', memo.id)"
@@ -54,10 +55,10 @@ const memos = [
                         class="text-gray-800 font-medium"
                         :class="{ 'line-clamp-2': expandedId !== memo.id }"
                     >
-                        {{ memo.title }}
+                        {{ memo.content }}
                     </p>
                     <span class="text-xs text-gray-400">
-                        {{ memo.date }}
+                        {{ memo.created_at }}
                     </span>
                 </div>
             </div>

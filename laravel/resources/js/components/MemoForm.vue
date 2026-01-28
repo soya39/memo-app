@@ -2,26 +2,27 @@
 import { ref, computed } from "vue";
 import axios from 'axios'
 import Button from "@/components/Button.vue";
+import { useMemoStore } from "@/stores/memo";
 import Textarea from "@/components/Textarea.vue";
 
+const store = useMemoStore();
 const content = ref("");
 
 const isButtonDisabled = computed(() => content.value.trim().length === 0);
 
 // 保存を実行する関数
+// 保存を実行する関数
 const saveMemo = async () => {
-    // 入力欄が空なら、Enterキーを押されてもここで処理を止める
     if (isButtonDisabled.value) return;
 
-    // 【送信】awaitを使って、Laravelからの返事（保存完了）が来るまで待機する.保存ならpost、取得ならget
-    // axios.post(住所, { ラベル名: 送りたい中身 })
-    await axios.post('/api/memos', {
-        content: content.value //content.valueを、contentという名前をつけてControllerに送る
-    });
+    // 【修正】axios.post を直接呼ぶのではなく、基地の担当者（addMemo）に任せる！
+    // 基地の中で axios 通信も、リストへの追加（unshift）も全部やってくれます。
+    await store.addMemo(content.value);
 
-    // 【リセット】DB保存が終わったので、次の入力のために画面の文字を消す
+    // 【リセット】画面の文字を消す
     content.value = "";
 };
+
 </script>
 
 <template>
