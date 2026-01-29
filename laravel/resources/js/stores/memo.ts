@@ -46,11 +46,27 @@ export const useMemoStore = defineStore('memo', () => {
         }
     };
 
+    const deleteMemo = async (id: number) => {
+        try {
+            // Laravelの窓口に「このIDのメモを消して！」と頼む
+            await axios.delete(`/api/memos/${id}`);
+
+            // 無事に倉庫から消えたら、手元の在庫棚（memos）からも消します。
+            // filterを使って「削除したID以外のメモ」だけを残して棚を更新します。
+            memos.value = memos.value.filter(memo => memo.id !== id);
+
+            console.log('削除成功！ ID:', id);
+        } catch (error) {
+            console.error('メモの削除に失敗しました:', error);
+        }
+    };
+
     // --- 3. 公開（Return） ---
     // 最後に、他のファイル（Vue）からも見えるように「お店のカウンター」に並べます。
     return {
         memos,
         fetchMemos,
-        addMemo
+        addMemo,
+        deleteMemo
     };
 });
